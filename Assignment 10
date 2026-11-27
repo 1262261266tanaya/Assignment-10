@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <time.h>
+
+// Function to check if a year is a leap year
+int isLeapYear(int year) {
+    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+        return 1;
+    return 0;
+}
+
+// Function to get the starting day of January 1st (0 = Sun, 1 = Mon, ..., 6 = Sat)
+int getFirstDayOfYear(int year) {
+    struct tm time_in = {0};
+    time_in.tm_year = year - 1900; // Years since 1900
+    time_in.tm_mon = 0;            // January (0-11)
+    time_in.tm_mday = 1;           // 1st day of the month
+
+    mktime(&time_in);              // Normalizes struct and fills tm_wday
+    return time_in.tm_wday;
+}
+
+int main() {
+    int year, month, day, daysInMonth, weekDay = 0, startingDay;
+
+    char *months[] = {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+
+    int monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    printf("Enter the year: ");
+    scanf("%d", &year);
+
+    // Adjust February days if it is a leap year
+    if (isLeapYear(year)) {
+        monthDays[1] = 29;
+    }
+
+    startingDay = getFirstDayOfYear(year);
+
+    printf("\n================ CALENDAR - %d ================\n", year);
+
+    for (month = 0; month < 12; month++) {
+        daysInMonth = monthDays[month];
+
+        printf("\n\n  ------------ %s ------------\n", months[month]);
+        printf("  Sun  Mon  Tue  Wed  Thu  Fri  Sat\n");
+
+        // Print leading spaces for the first day of the month
+        for (weekDay = 0; weekDay < startingDay; weekDay++) {
+            printf("     ");
+        }
+
+        // Print all days of the current month
+        for (day = 1; day <= daysInMonth; day++) {
+            printf("%5d", day);
+
+            if (++weekDay > 6) {
+                printf("\n");
+                weekDay = 0;
+            }
+        }
+
+        // The next month starts on the weekday where this month ended
+        startingDay = weekDay;
+    }
+
+    printf("\n\n=================================================\n");
+    return 0;
+}
